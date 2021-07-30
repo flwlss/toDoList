@@ -2,55 +2,54 @@
   <div id="nav">
     <h1 class="title">{{ title }}</h1>
     <div class="todo">
-      <input v-model="todo" type="text" placeholder="type todo" />
-      <button @click="addTodo(id++)">add todo</button>
+      <input v-model="todo" type="text" placeholder="Задание" />
+      <button @click="addTodo(id++)">Добавить</button>
       <p></p>
-      <div v-for="(todo, i) in todos" :key="todo.id">
-        <p>
-          <span class="todo__id">{{ i + 1 }}.</span>
-          <span
-            class="todo__text"
-            :class="{ todo__text_isShow: todo.isComplete }"
-            @dblclick="removeToDo(i)"
-            >{{ todo.text }}</span
-          >
-          <input
-            v-model="todo.isComplete"
-            class="todo__check"
-            type="checkbox"
-          />
-          <span>{{ isDone }}</span>
-        </p>
-      </div>
-      <hr />
-      <p>Список задач: {{ todos.length }}</p>
+      <todo-list :todos='todos' @removeTodo='removeTodo'/>
+      <todo-total :todos='todos'/>
     </div>
   </div>
 </template>
 
 <script>
+import todoList from '@/components/todoList.vue'
+import todoTotal from '@/components/todoTotal.vue'
+
 export default {
   name: "Home",
   data() {
     return {
       title: "toDoList",
-      todo: " ",
+      todo: "",
       todos: [],
       id: 0,
     };
   },
-  components: {},
+  mounted() {
+    const data = localStorage.getItem("todos");
+    if (data) {
+      this.todos = JSON.parse(data);
+    }
+  },
+  components: {
+    todoList,
+    todoTotal
+  },
   methods: {
     addTodo() {
-      this.todos.push({
-        id: this.id,
-        text: this.todo,
-        isComplete: false,
-      });
-      this.todo = " ";
+      if (this.todo != "") {
+        this.todos.push({
+          id: this.id,
+          text: this.todo,
+          isComplete: false,
+        });
+        localStorage.setItem("todos", JSON.stringify(this.todos));
+      }
+      this.todo = "";
     },
-    removeToDo(i) {
+    removeTodo(i) {
       this.todos.splice(i, 1);
+      localStorage.setItem("todos", JSON.stringify(this.todos));
     },
   },
 };
